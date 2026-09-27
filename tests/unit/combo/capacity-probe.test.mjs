@@ -37,6 +37,7 @@ test("stale, future, or missing evidence never resumes work", async () => {
   for (const evidence of [
     { ...fresh, checkedAt: new Date(now - 6_000).toISOString() },
     { ...fresh, checkedAt: new Date(now + 1).toISOString() },
+    { ...fresh, compatibleWith: undefined },
     null,
   ]) {
     const result = await createCapacityProbe(async () => evidence, { now: () => now })("pool_shared_01", "request-a");

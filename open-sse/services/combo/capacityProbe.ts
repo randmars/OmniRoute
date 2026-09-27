@@ -62,9 +62,14 @@ export function createCapacityProbe(
     } catch {
       evidence = null;
     }
-    const checkedMs = evidence ? Date.parse(evidence.checkedAt) : NaN;
+    const checkedMs = evidence && typeof evidence.checkedAt === "string"
+      ? Date.parse(evidence.checkedAt)
+      : NaN;
     const ageMs = now() - checkedMs;
-    if (!evidence || !Number.isFinite(checkedMs) || ageMs < 0 || ageMs > maxAgeMs) {
+    if (
+      !evidence || !Array.isArray(evidence.compatibleWith) ||
+      !Number.isFinite(checkedMs) || ageMs < 0 || ageMs > maxAgeMs
+    ) {
       return {
         version: 1, poolId, requirementFingerprint, checkedAt: null,
         compatible: false, includedOrFree: false, available: false,
