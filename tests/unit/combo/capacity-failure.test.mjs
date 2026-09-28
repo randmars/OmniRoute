@@ -46,4 +46,10 @@ test("rejects invalid evidence instead of claiming capacity exhaustion", () => {
   assert.throws(() => buildCapacityExhaustedResponse([
     { poolId: "pool_foo_01", resetAt: "2026-09-27T11:00:00Z" },
   ], now));
+  assert.throws(() => buildCapacityExhaustedResponse([
+    { poolId: "pool_foo_01", resetAt: "2026-02-30T12:00:00Z" },
+  ], now));
+  assert.throws(() => buildCapacityExhaustedResponse([
+    { poolId: "pool_foo_01", resetAt: "2026-09-27 12:01:00" },
+  ], now));
 });

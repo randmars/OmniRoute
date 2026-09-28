@@ -73,6 +73,20 @@ test("only verified future reset is returned", async () => {
   assert.equal((await unverified("pool_shared_01", "request-a")).resetAt, undefined);
 });
 
+test("reset is absent without proven exhaustion and canonical time", async () => {
+  const resetAt = new Date(now + 60_000).toISOString();
+  for (const evidence of [
+    { ...fresh, available: false, capacityVerified: false, resetAt, resetVerified: true },
+    { ...fresh, available: false, includedOrFree: false, resetAt, resetVerified: true },
+    { ...fresh, available: false, compatibleWith: [], resetAt, resetVerified: true },
+    { ...fresh, available: false, resetAt: "2026-02-30T12:00:00Z", resetVerified: true },
+    { ...fresh, available: false, resetAt: "2026-09-27 12:01:00", resetVerified: true },
+  ]) {
+    const result = await createCapacityProbe(async () => evidence, { now: () => now })("pool_shared_01", "request-a");
+    assert.equal(result.resetAt, undefined);
+  }
+});
+
 test("rejects route aliases and missing requirement fingerprints", async () => {
   const probe = createCapacityProbe(async () => fresh, { now: () => now });
   await assert.rejects(() => probe("provider/account", "request-a"));

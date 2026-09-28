@@ -1,4 +1,5 @@
 /** Read-only recovery check for a canonical included-capacity pool. */
+import { parseVerifiedInstant } from "./capacityEvidence.ts";
 export type CapacityPoolEvidence = {
   checkedAt: string;
   /** Fingerprints computed from the full, deterministic request requirements. */
@@ -62,9 +63,7 @@ export function createCapacityProbe(
     } catch {
       evidence = null;
     }
-    const checkedMs = evidence && typeof evidence.checkedAt === "string"
-      ? Date.parse(evidence.checkedAt)
-      : NaN;
+    const checkedMs = parseVerifiedInstant(evidence?.checkedAt);
     const ageMs = now() - checkedMs;
     if (
       !evidence || !Array.isArray(evidence.compatibleWith) ||
@@ -79,8 +78,8 @@ export function createCapacityProbe(
     const compatible = evidence.compatibleWith.includes(requirementFingerprint);
     const includedOrFree = evidence.billingVerified === true && evidence.includedOrFree === true;
     const available = compatible && includedOrFree && evidence.capacityVerified === true && evidence.available === true;
-    const resetMs = evidence.resetVerified === true && evidence.resetAt
-      ? Date.parse(evidence.resetAt)
+    const resetMs = evidence.resetVerified === true
+      ? parseVerifiedInstant(evidence.resetAt)
       : NaN;
     return {
       version: 1,
@@ -90,7 +89,8 @@ export function createCapacityProbe(
       compatible,
       includedOrFree,
       available,
-      ...(!available && Number.isFinite(resetMs) && resetMs > now()
+      ...(compatible && includedOrFree && evidence.capacityVerified === true &&
+        evidence.available === false && Number.isFinite(resetMs) && resetMs > now()
         ? { resetAt: new Date(resetMs).toISOString() }
         : {}),
       ...(!compatible ? { reason: "incompatible" as const }

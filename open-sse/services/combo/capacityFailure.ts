@@ -1,4 +1,5 @@
 /** Terminal included-capacity response shared with Paperclip's capacity hold. */
+import { parseVerifiedInstant } from "./capacityEvidence.ts";
 export type ExhaustedCapacityPool = {
   /** Stable opaque quota-pool key; aliases of one pool must use the same key. */
   poolId: string;
@@ -25,7 +26,7 @@ export function buildCapacityExhaustedResponse(
     if (!SAFE_POOL_ID.test(pool.poolId)) {
       throw new Error("capacity_exhausted requires opaque pool identifiers");
     }
-    const resetMs = pool.resetAt === undefined ? null : Date.parse(pool.resetAt);
+    const resetMs = pool.resetAt === undefined ? null : parseVerifiedInstant(pool.resetAt);
     if (resetMs !== null && (!Number.isFinite(resetMs) || resetMs <= now.getTime())) {
       throw new Error("capacity_exhausted requires future verified reset instants");
     }
