@@ -1,0 +1,19 @@
+[Unit]
+Description=JEV classifier decision proxy (verified free or local fallback)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/omniroute-source
+EnvironmentFile=%h/.config/omniroute/jev.env
+ExecStart=/usr/bin/env node scripts/jev/systemone-classify-proxy.mjs
+Restart=always
+RestartSec=3s
+TimeoutStopSec=5s
+NoNewPrivileges=true
+UMask=0077
+
+[Install]
+WantedBy=default.target

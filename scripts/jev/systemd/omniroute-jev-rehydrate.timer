@@ -1,0 +1,11 @@
+[Unit]
+Description=Restore persisted JEV hook on boot and after container replacement
+
+[Timer]
+OnBootSec=45s
+OnUnitInactiveSec=60s
+AccuracySec=5s
+Unit=omniroute-jev-rehydrate.service
+
+[Install]
+WantedBy=timers.target

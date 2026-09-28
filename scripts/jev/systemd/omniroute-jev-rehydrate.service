@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore persisted JEV middleware after startup or container recreation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/omniroute-source
+EnvironmentFile=%h/.config/omniroute/jev.env
+ExecStart=/usr/bin/python3 scripts/jev/rehydrate-jev-hook.py
+RemainAfterExit=no
+TimeoutStartSec=100s
+NoNewPrivileges=true
+UMask=0077
